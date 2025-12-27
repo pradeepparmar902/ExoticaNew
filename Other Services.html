@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Car Booking - Exotica Holiday</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        :root{--primary:#ff4d4d;--dark:#1a1a1a;--light:#f8f9fa}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Segoe UI',sans-serif;background:var(--light);color:#333;padding-top:90px}
+        header{background:var(--dark);color:#fff;position:fixed;top:0;left:0;right:0;z-index:1000}
+        .nav-container{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:1rem}
+        .logo{color:var(--primary);font-weight:700}
+        nav ul{display:flex;gap:1rem;list-style:none}
+        nav a{color:#fff;text-decoration:none}
+        main{max-width:1200px;margin:0 auto;padding:2rem}
+        h1{color:var(--primary);margin-bottom:0.5rem}
+        .search-card{background:#fff;padding:1rem;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06);margin-bottom:1rem}
+        .form-grid{display:flex;gap:0.6rem;flex-wrap:wrap}
+        .form-group{flex:1;min-width:160px;display:flex;flex-direction:column}
+        .form-group label{font-weight:600;margin-bottom:6px}
+        .form-group input,.form-group select{padding:0.6rem;border-radius:8px;border:1px solid #e0e0e0}
+        .actions{display:flex;gap:0.6rem;align-items:flex-end}
+        .btn{background:var(--primary);color:#fff;padding:0.75rem 1rem;border-radius:50px;border:none;cursor:pointer;font-weight:700}
+        .btn.secondary{background:#333}
+        #resultsTable{width:100%;border-collapse:collapse;margin-top:1rem}
+        #resultsTable th,#resultsTable td{padding:0.9rem;border-bottom:1px solid #eee;text-align:left}
+        #resultsTable th{background:#fafafa}
+        .price{color:var(--primary);font-weight:700}
+        @media(max-width:800px){.form-grid{flex-direction:column}.actions{flex-direction:column}}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <div class="logo">Exotica Holiday 🔥</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#packages">Packages</a></li>
+                    <li><a href="car-booking.html">car-booking</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <h1>Car Booking</h1>
+        <p style="color:#555;margin-bottom:12px">Search and compare vehicles — then book via our contact form.</p>
+
+        <div class="search-card">
+            <form id="carBookingForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="pickup">Pick-up location</label>
+                        <input id="pickup" name="pickup" placeholder="City or airport" list="locs" />
+                        <datalist id="locs"><option value="Mumbai"></option><option value="Goa"></option><option value="Delhi"></option><option value="Bengaluru"></option></datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pickup_date">Pick-up date</label>
+                        <input id="pickup_date" name="pickup_date" type="date" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pickup_time">Time</label>
+                        <input id="pickup_time" name="pickup_time" type="time" value="10:00" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dropoff_date">Drop-off date</label>
+                        <input id="dropoff_date" name="dropoff_date" type="date" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dropoff_time">Time</label>
+                        <input id="dropoff_time" name="dropoff_time" type="time" value="10:00" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="type">Vehicle type</label>
+                        <select id="type" name="type"><option value="any">Any</option><option value="sedan">Sedan</option><option value="suv">SUV</option><option value="van">Van</option></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passengers">Passengers</label>
+                        <input id="passengers" name="passengers" type="number" min="1" value="2" />
+                    </div>
+
+                    <div class="form-group" style="min-width:220px">
+                        <label>&nbsp;</label>
+                        <div style="display:flex;gap:0.6rem">
+                            <button id="searchBtn" type="button" class="btn">Search</button>
+                            <a class="btn secondary" href="contact.html?package=Car_Booking">Contact</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <section id="resultsSection">
+            <h2 style="margin-top:1rem;color:#333">Available Vehicles</h2>
+            <table id="resultsTable">
+                <thead>
+                    <tr><th>Vehicle</th><th>Type</th><th>Seats</th><th>Price / day</th><th></th></tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <tr><td colspan="5" style="color:#666;text-align:center;padding:1rem">No search yet. Use the form above to find vehicles.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="savedBookingsSection">
+            <h2 style="margin-top:1rem;color:#333">Saved Bookings</h2>
+            <table id="savedBookingsTable">
+                <thead>
+                    <tr><th>Name</th><th>Phone</th><th>Vehicle</th><th>Pickup</th><th>Drop-off</th><th>When</th></tr>
+                </thead>
+                <tbody id="savedBookingsBody">
+                    <tr><td colspan="6" style="color:#666;text-align:center;padding:1rem">No saved bookings yet.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Booking modal -->
+        <div id="bookingModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:2000">
+            <div style="background:#fff;padding:1.2rem;border-radius:10px;max-width:520px;margin:0 1rem;width:100%;box-shadow:0 10px 30px rgba(0,0,0,0.2);position:relative">
+                <button id="closeModal" style="position:absolute;right:10px;top:10px;background:none;border:none;font-size:1.2rem;cursor:pointer">&times;</button>
+                <h3 style="margin-top:0;color:var(--primary)">Book Vehicle</h3>
+                <form id="bookingForm">
+                    <input type="hidden" id="b_vehicle">
+                    <div style="display:flex;gap:0.6rem;flex-wrap:wrap">
+                        <div style="flex:1;min-width:160px">
+                            <label style="display:block;font-weight:600;margin-bottom:6px">Full name</label>
+                            <input id="b_name" required style="width:100%;padding:0.6rem;border-radius:6px;border:1px solid #e0e0e0">
+                        </div>
+                        <div style="flex:1;min-width:160px">
+                            <label style="display:block;font-weight:600;margin-bottom:6px">Phone</label>
+                            <input id="b_phone" required style="width:100%;padding:0.6rem;border-radius:6px;border:1px solid #e0e0e0">
+                        </div>
+                        <div style="flex:1;min-width:160px">
+                            <label style="display:block;font-weight:600;margin-bottom:6px">Email</label>
+                            <input id="b_email" type="email" style="width:100%;padding:0.6rem;border-radius:6px;border:1px solid #e0e0e0">
+                        </div>
+                    </div>
+                    <div style="margin-top:0.8rem"> 
+                        <label style="display:block;font-weight:600;margin-bottom:6px">Pickup / Drop-off</label>
+                        <div style="display:flex;gap:0.6rem;flex-wrap:wrap">
+                            <input id="b_pickup" style="flex:1;padding:0.6rem;border-radius:6px;border:1px solid #e0e0e0">
+                            <input id="b_dropoff" style="flex:1;padding:0.6rem;border-radius:6px;border:1px solid #e0e0e0">
+                        </div>
+                    </div>
+                    <div style="margin-top:0.8rem;display:flex;gap:0.6rem">
+                        <button type="submit" class="btn">Submit Booking</button>
+                        <button type="button" id="cancelBooking" class="btn secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple client-side search to populate table with sample data
+        const searchBtn = document.getElementById('searchBtn');
+        const resultsBody = document.getElementById('resultsBody');
+
+        function sampleVehicles(type){
+            const base = type === 'suv' ? 4200 : type === 'sedan' ? 2800 : 2400;
+            return [
+                {name:'Toyota Innova', type:'MUV', seats:6, price: base + 900},
+                {name:'Maruti Dzire', type:'Sedan', seats:4, price: base},
+                {name:'Hyundai Creta', type:'SUV', seats:5, price: base + 600}
+            ];
+        }
+
+        function validate(form){
+            if(!form.pickup.value.trim()) return 'Enter pick-up location';
+            if(!form.pickup_date.value) return 'Select pick-up date';
+            if(!form.dropoff_date.value) return 'Select drop-off date';
+            if(new Date(form.dropoff_date.value) < new Date(form.pickup_date.value)) return 'Drop-off date must be after pick-up date';
+            return '';
+        }
+
+        function renderTable(items){
+            resultsBody.innerHTML = '';
+            items.forEach(it =>{
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${it.name}</td>
+                    <td>${it.type}</td>
+                    <td>${it.seats}</td>
+                    <td class="price">₹ ${it.price}</td>
+                    <td><button class="btn book-now" data-name="${it.name}" data-price="${it.price}">Book Now</button></td>
+                `;
+                resultsBody.appendChild(tr);
+            });
+
+            // attach book-now handlers
+            document.querySelectorAll('.book-now').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const vehicle = btn.dataset.name;
+                    const price = btn.dataset.price;
+                    openBookingModal(vehicle, price);
+                });
+            });
+        }
+
+        searchBtn.addEventListener('click', ()=>{
+            const form = document.getElementById('carBookingForm');
+            const err = validate(form);
+            if(err){ alert(err); return; }
+            const type = document.getElementById('type').value;
+            const items = sampleVehicles(type);
+            renderTable(items);
+            document.getElementById('resultsSection').scrollIntoView({behavior:'smooth'});
+        });
+
+        // --- Booking modal and saving to localStorage ---
+        const bookingModal = document.getElementById('bookingModal');
+        const bookingForm = document.getElementById('bookingForm');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBooking = document.getElementById('cancelBooking');
+        const savedBookingsKey = 'exoticaCarBookings';
+
+        function openBookingModal(vehicle, price){
+            document.getElementById('b_vehicle').value = vehicle;
+            document.getElementById('b_pickup').value = document.getElementById('pickup').value + ' ' + document.getElementById('pickup_date').value;
+            document.getElementById('b_dropoff').value = document.getElementById('dropoff_date').value || '';
+            bookingModal.style.display = 'flex';
+        }
+
+        function closeBookingModal(){
+            bookingModal.style.display = 'none';
+            bookingForm.reset();
+        }
+
+        closeModal.addEventListener('click', closeBookingModal);
+        cancelBooking.addEventListener('click', closeBookingModal);
+
+        bookingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const booking = {
+                name: document.getElementById('b_name').value.trim(),
+                phone: document.getElementById('b_phone').value.trim(),
+                email: document.getElementById('b_email').value.trim(),
+                vehicle: document.getElementById('b_vehicle').value,
+                pickup: document.getElementById('b_pickup').value,
+                dropoff: document.getElementById('b_dropoff').value,
+                timestamp: new Date().toISOString()
+            };
+
+            let saved = JSON.parse(localStorage.getItem(savedBookingsKey)) || [];
+            saved.push(booking);
+            localStorage.setItem(savedBookingsKey, JSON.stringify(saved));
+            renderSavedBookings();
+            closeBookingModal();
+            alert('Booking saved. We will contact you soon.');
+        });
+
+        function renderSavedBookings(){
+            const body = document.getElementById('savedBookingsBody');
+            const saved = JSON.parse(localStorage.getItem(savedBookingsKey)) || [];
+            if(saved.length === 0){
+                body.innerHTML = '<tr><td colspan="6" style="color:#666;text-align:center;padding:1rem">No saved bookings yet.</td></tr>';
+                return;
+            }
+            body.innerHTML = '';
+            saved.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${b.name}</td>
+                    <td>${b.phone}</td>
+                    <td>${b.vehicle}</td>
+                    <td>${b.pickup}</td>
+                    <td>${b.dropoff}</td>
+                    <td>${new Date(b.timestamp).toLocaleString()}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        // initial load
+        renderSavedBookings();
+    </script>
+</body>
+</html>

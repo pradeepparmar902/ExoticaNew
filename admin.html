@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Exotica Holiday Admin - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #ff4d4d;
+            --accent: #ff6b35;
+            --dark: #1a1a1a;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--light);
+            color: #222;
+            line-height: 1.6;
+            padding-top: 90px;
+        }
+
+        header {
+            background: var(--dark);
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+        }
+
+        .logo {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 20px;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            opacity: 0.95;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 36px 16px;
+        }
+
+        h1, h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .toggle-btn {
+            display: block;
+            margin: 1rem auto;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .toggle-btn:hover {
+            background: #cc0000;
+            transform: translateY(-3px);
+        }
+
+        .section-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(16,24,40,0.06);
+            margin-bottom: 3rem;
+            display: none; /* Hidden by default */
+        }
+        .toggle-btn {
+            display: block;
+            margin: 1rem auto;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .toggle-btn:hover {
+            background: #cc0000;
+            transform: translateY(-3px);
+        }
+
+        label {
+            display: block;
+            margin: 0.8rem 0 0.3rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        textarea { height: 120px; resize: vertical; }
+
+        button {
+            background: var(--primary);
+            color: white;
+            padding: 0.9rem 1.8rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 0.5rem;
+        }
+
+        button:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: var(--dark);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .edit-btn { background: #007bff; }
+        .delete-btn { background: var(--danger); }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+
+        img.preview {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .type-package { background: #e6f7ff; }
+        .type-car { background: #fff7e6; }
+        .type-cruise { background: #f0fff4; }
+        .type-visa { background: #fff0f6; }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .actions { flex-direction: column; }
+            button { width: 100%; margin-bottom: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo">Exotica Holiday Admin</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="car-booking.html">Car Booking</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Toggle Buttons -->
+        <button class="toggle-btn" id="showFormBtn">+ Add New Package</button>
+        <button class="toggle-btn" id="showPackagesBtn">Show All Packages</button>
+        <button class="toggle-btn" id="showBookingsBtn">Show Unified Customer Bookings</button>
+        <button class="toggle-btn" id="showImportBtn">Import Packages from Excel</button>
+
+       <!-- Import Excel Section -->
+        <!-- Import Excel Section (hidden by default) -->
+<div class="section-container" id="importContainer">
+    <h3>Import Packages from Excel</h3>
+    <label for="excelFile" class="btn" style="display: inline-block; cursor: pointer; padding: 1rem 2rem;">
+        Choose Excel File
+    </label>
+    <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;">
+    <p id="fileName" style="margin-top: 1rem; color: #666;">No file chosen</p>
+
+    <!-- Import Button (shows after file selected) -->
+    <button id="importBtn" class="btn" style="margin-top: 1rem; display: none;">
+        Import Now
+    </button>
+
+    <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+        Download <a href="#" id="downloadTemplate" style="color: var(--primary); text-decoration: underline;">this template</a> for correct format.
+    </p>
+</div>
+
+        <!-- Add / Edit Package Form -->
+        <div class="section-container" id="formContainer">
+            <h2 id="formTitle">Add New Package</h2>
+            <form id="packageForm">
+                <input type="hidden" id="editIndex" value="-1">
+
+                <label for="title">Package Title</label>
+                <input type="text" id="title" required>
+
+                <label for="price">Price (₹)</label>
+                <input type="number" id="price" required min="0">
+
+                <label for="oldPrice">Old Price (optional)</label>
+                <input type="number" id="oldPrice" min="0">
+
+                <label for="saleText">Sale Text (e.g., SALE!)</label>
+                <input type="text" id="saleText" value="SALE!">
+
+                <label for="location">Location</label>
+                <input type="text" id="location" required>
+
+                <label for="duration">Duration (e.g., 10D/9N)</label>
+                <input type="text" id="duration" required>
+
+                <label for="description">Short Description (front card)</label>
+                <textarea id="description" required></textarea>
+
+                <label for="moreDetails">More Details (long description for modal)</label>
+                <textarea id="moreDetails" rows="8" placeholder="Enter detailed information..."></textarea>
+
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="International">International</option>
+                    <option value="India">India</option>
+                    <option value="Local">Local</option>
+                    <option value="Hill station">Hill Station</option>
+                    <option value="ABC1">ABC1</option>
+                    <option value="ABC2">ABC2</option>
+                </select>
+
+                <label for="tags">Tags (comma-separated keywords)</label>
+                <input type="text" id="tags" placeholder="e.g., Summer Vacation, Adventure, Family Trip">
+
+                <label for="imageUrl">Image URL</label>
+                <input type="url" id="imageUrl" required placeholder="https://images.unsplash.com/...">
+
+                <label for="dataPackage">Data Package Key (unique identifier)</label>
+                <input type="text" id="dataPackage" required placeholder="e.g., kashmir">
+
+                <div style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn">Save Package</button>
+                    <button type="button" id="cancelEdit" class="btn" style="display:none; background:#6c757d;">Cancel</button>
+                </div>
+            </form>
+
+            <div id="message" class="message" style="display:none;"></div>
+        </div>
+
+        <!-- Packages Table -->
+        <div class="section-container" id="packagesContainer">
+            <h2>All Packages</h2>
+            <div class="table-container">
+                <table id="packagesTable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Old Price</th>
+                            <th>Sale Text</th>
+                            <th>Location</th>
+                            <th>Duration</th>
+                            <th>Short Desc</th>
+                            <th>More Details</th>
+                            <th>Category</th>
+                            <th>Tags</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Unified Customer Bookings Table -->
+        <div class="section-container" id="bookingsContainer">
+            <h2>Unified Customer Bookings</h2>
+            <div class="table-container">
+                <table id="unifiedBookingsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Persons</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Travel Date</th>
+                            <th>Additional Info</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="unifiedBookingsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // === Your Original Packages & Form Logic (Fully Restored) ===
+
+        const form = document.getElementById('packageForm');
+        const tableBody = document.getElementById('tableBody');
+        const messageDiv = document.getElementById('message');
+        const formTitle = document.getElementById('formTitle');
+        const editIndexInput = document.getElementById('editIndex');
+        const cancelBtn = document.getElementById('cancelEdit');
+        const formContainer = document.getElementById('formContainer');
+        const packagesContainer = document.getElementById('packagesContainer');
+        const bookingsContainer = document.getElementById('bookingsContainer');
+        const showFormBtn = document.getElementById('showFormBtn');
+        const showPackagesBtn = document.getElementById('showPackagesBtn');
+        const showBookingsBtn = document.getElementById('showBookingsBtn');
+
+        let packages = JSON.parse(localStorage.getItem('exoticaPackages')) || [];
+
+        // Toggle Add Package Form
+        showFormBtn.addEventListener('click', () => {
+            formContainer.style.display = formContainer.style.display === 'block' ? 'none' : 'block';
+            showFormBtn.textContent = formContainer.style.display === 'block' ? 'Hide Add Form' : '+ Add New Package';
+        });
+
+        // Toggle Packages Table
+        showPackagesBtn.addEventListener('click', () => {
+            packagesContainer.style.display = packagesContainer.style.display === 'block' ? 'none' : 'block';
+            showPackagesBtn.textContent = packagesContainer.style.display === 'block' ? 'Hide All Packages' : 'Show All Packages';
+            if (packagesContainer.style.display === 'block') {
+                loadPackages();
+            }
+        });
+
+        // Toggle Unified Bookings Table
+        showBookingsBtn.addEventListener('click', () => {
+            bookingsContainer.style.display = bookingsContainer.style.display === 'block' ? 'none' : 'block';
+            showBookingsBtn.textContent = bookingsContainer.style.display === 'block' ? 'Hide Unified Bookings' : 'Show Unified Customer Bookings';
+            if (bookingsContainer.style.display === 'block') {
+                loadUnifiedBookings();
+            }
+        });
+
+        // Load Packages Table
+        function loadPackages() {
+            tableBody.innerHTML = '';
+            packages.forEach((pkg, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><img src="${pkg.imageUrl}" class="preview" alt="${pkg.title}"></td>
+                    <td>${pkg.title}</td>
+                    <td>₹${pkg.price}</td>
+                    <td>${pkg.oldPrice ? '₹' + pkg.oldPrice : '-'}</td>
+                    <td>${pkg.saleText || '-'}</td>
+                    <td>${pkg.location}</td>
+                    <td>${pkg.duration}</td>
+                    <td>${pkg.description.substring(0, 50)}${pkg.description.length > 50 ? '...' : ''}</td>
+                    <td>${pkg.moreDetails ? pkg.moreDetails.substring(0, 50) + '...' : '-'}</td>
+                    <td>${pkg.category || '-'}</td>
+                    <td>${pkg.tags ? pkg.tags.join(', ') : '-'}</td>
+                    <td class="actions">
+                        <button class="btn edit-btn" onclick="editPackage(${index})"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn delete-btn" onclick="deletePackage(${index})"><i class="fas fa-trash"></i> Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Save / Edit Package
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pkg = {
+                title: document.getElementById('title').value.trim(),
+                price: document.getElementById('price').value.trim(),
+                oldPrice: document.getElementById('oldPrice').value.trim() || null,
+                saleText: document.getElementById('saleText').value.trim(),
+                location: document.getElementById('location').value.trim(),
+                duration: document.getElementById('duration').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                moreDetails: document.getElementById('moreDetails').value.trim(),
+                category: document.getElementById('category').value.trim(),
+                tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                imageUrl: document.getElementById('imageUrl').value.trim(),
+                dataPackage: document.getElementById('dataPackage').value.trim().toLowerCase()
+            };
+
+            const editIndex = parseInt(editIndexInput.value);
+            if (editIndex >= 0) {
+                packages[editIndex] = pkg;
+                showMessage('Package updated successfully!', 'success');
+            } else {
+                packages.push(pkg);
+                showMessage('Package added successfully!', 'success');
+            }
+
+            localStorage.setItem('exoticaPackages', JSON.stringify(packages));
+            loadPackages();
+            form.reset();
+            formTitle.textContent = 'Add New Package';
+            editIndexInput.value = '-1';
+            cancelBtn.style.display = 'none';
+            formContainer.style.display = 'none';
+            showFormBtn.textContent = '+ Add New Package';
+        });
+
+        // Edit Package
+        function editPackage(index) {
+            const pkg = packages[index];
+            document.getElementById('title').value = pkg.title;
+            document.getElementById('price').value = pkg.price;
+            document.getElementById('oldPrice').value = pkg.oldPrice || '';
+            document.getElementById('saleText').value = pkg.saleText || 'SALE!';
+            document.getElementById('location').value = pkg.location;
+            document.getElementById('duration').value = pkg.duration;
+            document.getElementById('description').value = pkg.description;
+            document.getElementById('moreDetails').value = pkg.moreDetails || '';
+            document.getElementById('category').value = pkg.category || '';
+            document.getElementById('tags').value = pkg.tags ? pkg.tags.join(', ') : '';
+            document.getElementById('imageUrl').value = pkg.imageUrl;
+            document.getElementById('dataPackage').value = pkg.dataPackage;
+
+            formTitle.textContent = 'Edit Package';
+            editIndexInput.value = index;
+            cancelBtn.style.display = 'inline-block';
+            formContainer.style.display = 'block';
+            showFormBtn.textContent = 'Hide Add Form';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Cancel Edit
+        cancelBtn.addEventListener('click', () => {
+            form.reset();
+            formTitle.textContent = 'Add New Package';
+            editIndexInput.value = '-1';
+            cancelBtn.style.display = 'none';
+            formContainer.style.display = 'none';
+            showFormBtn.textContent = '+ Add New Package';
+        });
+
+        // Delete Package
+        function deletePackage(index) {
+            if (confirm('Are you sure you want to delete this package?')) {
+                packages.splice(index, 1);
+                localStorage.setItem('exoticaPackages', JSON.stringify(packages));
+                loadPackages();
+                showMessage('Package deleted successfully!', 'success');
+            }
+        }
+
+        // Show Message
+        function showMessage(text, type = 'success') {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
+        }
+
+// Toggle Import Excel Section
+document.getElementById('showImportBtn').addEventListener('click', () => {
+    const container = document.getElementById('importContainer');
+    container.style.display = container.style.display === 'block' ? 'none' : 'block';
+    document.getElementById('showImportBtn').textContent = container.style.display === 'block' ? 'Hide Import Excel' : 'Import Packages from Excel';
+});
+
+// Import Excel Logic
+const excelFileInput = document.getElementById('excelFile');
+const fileNameDisplay = document.getElementById('fileName');
+const importBtn = document.getElementById('importBtn');
+
+excelFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        fileNameDisplay.textContent = file.name;
+        importBtn.style.display = 'inline-block';
+    } else {
+        fileNameDisplay.textContent = 'No file chosen';
+        importBtn.style.display = 'none';
+    }
+});
+
+importBtn.addEventListener('click', () => {
+    const file = excelFileInput.files[0];
+    if (!file) {
+        alert('Please select a file first.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+        try {
+            const data = evt.target.result;
+            const workbook = XLSX.read(data, { type: 'binary' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+            // Convert to package objects (skip header row)
+            const newPackages = json.slice(1).map(row => ({
+                title: row[0] || '',
+                price: row[1] || '',
+                oldPrice: row[2] || '',
+                saleText: row[3] || 'SALE!',
+                location: row[4] || '',
+                duration: row[5] || '',
+                description: row[6] || '',
+                moreDetails: row[7] || '',
+                category: row[8] || '',
+                tags: row[9] ? row[9].split(',').map(t => t.trim()) : [],
+                imageUrl: row[10] || '',
+                dataPackage: row[11] || ''
+            }));
+
+            // Merge with existing packages
+            let packages = JSON.parse(localStorage.getItem('exoticaPackages')) || [];
+            packages = [...packages, ...newPackages];
+            localStorage.setItem('exoticaPackages', JSON.stringify(packages));
+
+            alert('Packages imported successfully! Total packages: ' + packages.length);
+            excelFileInput.value = ''; // Clear input
+            fileNameDisplay.textContent = 'No file chosen';
+            importBtn.style.display = 'none';
+        } catch (err) {
+            alert('Error importing file: ' + err.message);
+        }
+    };
+    reader.readAsBinaryString(file);
+});
+
+// Download Template Link
+document.getElementById('downloadTemplate').addEventListener('click', (e) => {
+    e.preventDefault();
+    const templateData = [
+        ['Title', 'Price', 'Old Price', 'Sale Text', 'Location', 'Duration', 'Description', 'More Details', 'Category', 'Tags', 'Image URL', 'Data Package Key']
+    ];
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(templateData);
+    XLSX.utils.book_append_sheet(wb, ws, 'Template');
+    XLSX.writeFile(wb, 'exotica_packages_template.xlsx');
+});
+
+        // === Unified Customer Bookings Logic ===
+
+        const unifiedBookingsKey = 'exoticaUnifiedBookings';
+        const unifiedBookingsBody = document.getElementById('unifiedBookingsBody');
+
+        function loadUnifiedBookings() {
+            const bookings = JSON.parse(localStorage.getItem(unifiedBookingsKey)) || [];
+            unifiedBookingsBody.innerHTML = '';
+
+            if (bookings.length === 0) {
+                unifiedBookingsBody.innerHTML = '<tr><td colspan="10" class="no-data">No unified bookings found.</td></tr>';
+                return;
+            }
+
+            bookings.forEach(booking => {
+                const row = document.createElement('tr');
+                row.className = `type-${booking.type}`;
+
+                row.innerHTML = `
+                    <td>${booking.id}</td>
+                    <td>${booking.type.toUpperCase()}</td>
+                    <td>${booking.name || '-'}</td>
+                    <td>${booking.persons || '-'}</td>
+                    <td>${booking.phone || '-'}</td>
+                    <td>${booking.email || '-'}</td>
+                    <td>${booking.travelDate || '-'}</td>
+                    <td>${booking.additionalInfo ? booking.additionalInfo.substring(0, 50) + '...' : '-'}</td>
+                    <td>${booking.status}</td>
+                    <td>
+                        <button class="btn details-btn" onclick="showUnifiedDetails('${booking.id}')"><i class="fas fa-eye"></i> View</button>
+                    </td>
+                `;
+
+                unifiedBookingsBody.appendChild(row);
+            });
+        }
+
+        // Show Unified Booking Details
+        function showUnifiedDetails(id) {
+            const bookings = JSON.parse(localStorage.getItem(unifiedBookingsKey)) || [];
+            const booking = bookings.find(b => b.id === id);
+
+            if (!booking) {
+                alert('Booking not found.');
+                return;
+            }
+
+            let details = `
+Booking ID: ${booking.id}
+Type: ${booking.type.toUpperCase()}
+Status: ${booking.status}
+Submitted: ${new Date(booking.timestamp).toLocaleString()}
+
+Name: ${booking.name || '-'}
+Persons: ${booking.persons || '-'}
+Phone: ${booking.phone || '-'}
+Email: ${booking.email || '-'}
+Travel Date: ${booking.travelDate || '-'}
+
+Additional Info: ${booking.additionalInfo || 'None'}
+            `;
+
+            if (booking.type === 'package') {
+                details += `
+Package ID: ${booking.packageId || '-'}
+Hotel Category: ${booking.hotelCategory || '-'}
+Meal Type: ${booking.mealType || '-'}`;
+            } else if (booking.type === 'car') {
+                details += `
+Pick-up: ${booking.pickupLocation || '-'} on ${booking.pickupDate || '-'} at ${booking.pickupTime || '-'}
+Drop-off: ${booking.dropoffDate || '-'} at ${booking.dropoffTime || '-'}
+Vehicle: ${booking.vehicleType || '-'}`;
+            } else if (booking.type === 'cruise') {
+                details += `
+Destination: ${booking.cruiseDestination || '-'}
+Departure: ${booking.departureDate || '-'}
+Duration: ${booking.cruiseDuration || '-'}
+Guests: ${booking.guests || '-'}`;
+            } else if (booking.type === 'visa') {
+                details += `
+Destination: ${booking.visaDestination || '-'}
+Details: ${booking.visaDetails || '-'}`;
+            }
+
+            alert(details);
+        }
+
+        // === Import Bulk Packages from Excel (Restored) ===
+        document.getElementById('excelFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const data = evt.target.result;
+                const workbook = XLSX.read(data, { type: 'binary' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                // Skip header row, convert to package objects
+                const newPackages = json.slice(1).map(row => ({
+                    title: row[0] || '',
+                    price: row[1] || '',
+                    oldPrice: row[2] || '',
+                    saleText: row[3] || 'SALE!',
+                    location: row[4] || '',
+                    duration: row[5] || '',
+                    description: row[6] || '',
+                    moreDetails: row[7] || '',
+                    category: row[8] || '',
+                    tags: row[9] ? row[9].split(',').map(t => t.trim()) : [],
+                    imageUrl: row[10] || '',
+                    dataPackage: row[11] || ''
+                }));
+
+                // Merge with existing packages (or overwrite if you prefer)
+                packages = [...packages, ...newPackages];
+                localStorage.setItem('exoticaPackages', JSON.stringify(packages));
+                alert('Packages imported successfully!');
+                loadPackages();
+            };
+            reader.readAsBinaryString(file);
+        });
+
+        // Initial Load
+        window.onload = () => {
+            loadPackages();
+        };
+    </script>
+</body>
+</html>
